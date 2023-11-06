@@ -1,0 +1,12 @@
+"What is version control and why is it important?"
+
+Maintaining an organized workspace is key to collaboration on a large project. 
+Version control is the process of keeping various iterations of a project organized.
+Typically version control will include tools that highlight updates and changes as well as who made them. 
+Version control creates accountablilty within teams. 
+Because each team member has a repository saved locally that can then be shared with their peers each member is able to operate independently. 
+Once the changes have been shared with the main branch of code it is very easy to follow where changes or errors occur. 
+The process of pushing a change would look like this:
+"code is completed, within the terminal type 'git add .' which will stage your most recent files to be committed. 
+Next you will type 'git commit -m "message" ' this will add a note to your updated code that will make organization much easier. 
+The final step will be to type 'git push' in the terminal which will finalize the process of moving your code to the main repository. 
