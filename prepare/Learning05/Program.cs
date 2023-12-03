@@ -1,13 +1,3 @@
-using System;
-
-class Program
-{
-    static void Main(string[] args)
-    {
-        Console.WriteLine("Hello Learning05 World!");
-    }
-}
-
 public class Shape
 {
     private string color;
@@ -21,6 +11,10 @@ public class Shape
     public Shape(string color)
     {
         Color = color;
+    }
+
+    public Shape()
+    {
     }
 
     public virtual double GetArea()
