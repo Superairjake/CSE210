@@ -1,132 +1,197 @@
 
-<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-  </PropertyGroup>
-
-</Project>
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-class Program
-{
-    static void Main()
-    {
-        // Create a scripture instance
-        var scripture = new Scripture("John 3:16", "For God so loved the world...");
-
-        // Display the complete scripture
-        DisplayScripture(scripture);
-
-        // Continue hiding words until all are hidden
-        while (!scripture.AllWordsHidden)
-        {
-            Console.WriteLine("Press Enter to hide more words or type 'quit' to end.");
-            string input = Console.ReadLine();
-
-            if (input.ToLower() == "quit")
-            {
-                break;
-            }
-
-            HideRandomWords(scripture);
-            DisplayScripture(scripture);
-        }
-
-        Console.WriteLine("Program ended.");
-    }
-
-    static void DisplayScripture(Scripture scripture)
-    {
-        Console.Clear();
-        Console.WriteLine(scripture.GetFullText());
-        Console.WriteLine($"Reference: {scripture.Reference.GetReferenceString()}");
-    }
-
-    static void HideRandomWords(Scripture scripture)
-    {
-        Random random = new Random();
-        List<Word> visibleWords = scripture.GetVisibleWords();
-        int wordsToHideCount = Math.Min(visibleWords.Count, 2); // Hide at most 2 words at a time
-
-        for (int i = 0; i < wordsToHideCount; i++)
-        {
-            int index = random.Next(visibleWords.Count);
-            visibleWords[index].Hide();
-            visibleWords.RemoveAt(index);
-        }
-    }
-}
-
-class Scripture
-{
-    public Reference Reference { get; private set; }
-    private List<Word> Words { get; set; }
-
-    public bool AllWordsHidden => Words.All(word => word.IsHidden);
-
-    public Scripture(string reference, string text)
-    {
-        Reference = new Reference(reference);
-        Words = text.Split(' ').Select(word => new Word(word)).ToList();
-    }
-
-    public string GetFullText()
-    {
-        return string.Join(" ", Words.Select(word => word.IsHidden ? "___" : word.Text));
-    }
-
-    public List<Word> GetVisibleWords()
-    {
-        return Words.Where(word => !word.IsHidden).ToList();
-    }
-}
-
-class Reference
-{
-    public string Book { get; private set; }
-    public int Chapter { get; private set; }
-    public int VerseStart { get; private set; }
-    public int VerseEnd { get; private set; }
-
-    public Reference(string reference)
-    {
-        // Parsing the reference string
-        // (Assuming the format is "Book Chapter:Verse-EndVerse")
-        // You may need to enhance the parsing logic based on your actual data
-        string[] parts = reference.Split(' ');
-        Book = parts[0];
-        string[] chapterVerse = parts[1].Split(':');
-        Chapter = int.Parse(chapterVerse[0]);
-        string[] verseRange = chapterVerse[1].Split('-');
-        VerseStart = int.Parse(verseRange[0]);
-        VerseEnd = verseRange.Length > 1 ? int.Parse(verseRange[1]) : VerseStart;
-    }
-
-    public string GetReferenceString()
-    {
-        return $"{Book} {Chapter}:{VerseStart}-{VerseEnd}";
-    }
-}
-
+// A class to represent a word in the scripture
 class Word
 {
-    public string Text { get; private set; }
-    public bool IsHidden { get; private set; }
+    // A property to store the text of the word
+    public string Text { get; set; }
 
-    public Word(string text)
+    // A property to store whether the word is hidden or not
+    public bool IsHidden { get; set; }
+
+    // A constructor to initialize the word with the text and the hidden status
+    public Word(string text, bool isHidden)
     {
         Text = text;
-        IsHidden = false;
+        IsHidden = isHidden;
+    }
+}
+
+// A class to represent the reference of the scripture
+class Reference
+{
+    // A property to store the book name
+    public string Book { get; set; }
+
+    // A property to store the chapter number
+    public int Chapter { get; set; }
+
+    // A property to store the starting verse number
+    public int StartVerse { get; set; }
+
+    // A property to store the ending verse number
+    public int EndVerse { get; set; }
+
+    // A constructor to initialize the reference with a single verse
+    public Reference(string book, int chapter, int verse)
+    {
+        Book = book;
+        Chapter = chapter;
+        StartVerse = verse;
+        EndVerse = verse;
     }
 
-    public void Hide()
+    // A constructor to initialize the reference with a verse range
+    public Reference(string book, int chapter, int startVerse, int endVerse)
     {
-        IsHidden = true;
+        Book = book;
+        Chapter = chapter;
+        StartVerse = startVerse;
+        EndVerse = endVerse;
+    }
+
+    // A method to return the reference as a string
+    public override string ToString()
+    {
+        // If the start and end verses are the same, return the reference as "Book Chapter:Verse"
+        if (StartVerse == EndVerse)
+        {
+            return $"{Book} {Chapter}:{StartVerse}";
+        }
+        // Otherwise, return the reference as "Book Chapter:StartVerse-EndVerse"
+        else
+        {
+            return $"{Book} {Chapter}:{StartVerse}-{EndVerse}";
+        }
+    }
+}
+
+// A class to represent the scripture
+class Scripture
+{
+    // A property to store the reference of the scripture
+    public Reference Reference { get; set; }
+
+    // A property to store the text of the scripture as a list of words
+    public List<Word> Words { get; set; }
+
+    // A constructor to initialize the scripture with the reference and the text
+    public Scripture(Reference reference, string text)
+    {
+        Reference = reference;
+        // Split the text by spaces and punctuation marks, and create a list of words
+        Words = text.Split(new char[] { ' ', ',', '.', ';', ':', '?', '!' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(w => new Word(w, false)) // Initialize each word with the text and the hidden status as false
+                    .ToList();
+    }
+
+    // A method to display the scripture on the console
+    public void Display()
+    {
+        // Print the reference
+        Console.WriteLine(Reference);
+
+        // Print the text
+        foreach (Word word in Words)
+        {
+            // If the word is hidden, print an underscore
+            if (word.IsHidden)
+            {
+                Console.Write("_ ");
+            }
+            // Otherwise, print the word
+            else
+            {
+                Console.Write(word.Text + " ");
+            }
+        }
+
+        // Print a new line
+        Console.WriteLine();
+    }
+
+    // A method to hide a few random words in the scripture
+    public void HideWords()
+    {
+        // Create a random number generator
+        Random random = new Random();
+
+        // Get the number of words to hide, between 1 and 5
+        int wordsToHide = random.Next(1, 6);
+
+        // Loop for the number of words to hide
+        for (int i = 0; i wordsToHide; i++)
+        {
+            // Get a random index of a word in the list
+            int index = random.Next(Words.Count);
+
+            // Set the hidden status of the word at that index to true
+            Words[index].IsHidden = true;
+        }
+    }
+
+    // A method to check if all words in the scripture are hidden
+    public bool AreAllWordsHidden()
+    {
+        // Loop through the list of words
+        foreach (Word word in Words)
+        {
+            // If any word is not hidden, return false
+            if (!word.IsHidden)
+            {
+                return false;
+            }
+        }
+
+        // If all words are hidden, return true
+        return true;
+    }
+}
+
+// The main class of the program
+class Program
+{
+    // The main method of the program
+    static void Main(string[] args)
+    {
+        // Create a scripture object with a reference and a text
+        Scripture scripture = new Scripture(new Reference("John", 3, 16), "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.");
+
+        // Clear the console screen
+        Console.Clear();
+
+        // Display the scripture
+        scripture.Display();
+
+        // Prompt the user to press the enter key or type quit
+        Console.WriteLine("Press the enter key to hide some words, or type quit to end the program.");
+
+        // Read the user input
+        string input = Console.ReadLine();
+
+        // Loop until the user types quit or all words are hidden
+        while (input != "quit" !scripture.AreAllWordsHidden())
+        {
+            // Hide some words in the scripture
+            scripture.HideWords();
+
+            // Clear the console screen
+            Console.Clear();
+
+            // Display the scripture
+            scripture.Display();
+
+            // Prompt the user to press the enter key or type quit
+            Console.WriteLine("Press the enter key to hide some more words, or type quit to end the program.");
+
+            // Read the user input
+            input = Console.ReadLine();
+        }
+
+        // If all words are hidden, print a message
+        if (scripture.AreAllWordsHidden())
+        {
+            Console.WriteLine("All words are hidden. Goodbye!");
+        }
     }
 }
