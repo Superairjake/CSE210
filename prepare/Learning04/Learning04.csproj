@@ -9,3 +9,86 @@
   </PropertyGroup>
 
 </Project>
+using System;
+
+public class Assignment
+{
+    private string _studentName;
+    private string _topic;
+
+    public Assignment(string studentName, string topic)
+    {
+        _studentName = studentName;
+        _topic = topic;
+    }
+
+    public string GetSummary()
+    {
+        return $"{_studentName} - {_topic}";
+    }
+}
+
+using System;
+
+public class MathAssignment : Assignment
+{
+    private string _textbookSection;
+    private string _problems;
+
+    public MathAssignment(string studentName, string topic, string textbookSection, string problems)
+        : base(studentName, topic)
+    {
+        _textbookSection = textbookSection;
+        _problems = problems;
+    }
+
+    public string GetHomeworkList()
+    {
+        return $"Section {_textbookSection} Problems {_problems}";
+    }
+}
+
+using System;
+
+public class WritingAssignment : Assignment
+{
+    private string _title;
+
+    public WritingAssignment(string studentName, string topic, string title)
+        : base(studentName, topic)
+    {
+        _title = title;
+    }
+
+    public string GetWritingInformation()
+    {
+        return $"{_title} by {_studentName}";
+    }
+}
+
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        // Test the base class
+        Assignment assignment = new Assignment("Samuel Bennett", "Multiplication");
+        string summary = assignment.GetSummary();
+        Console.WriteLine(summary);
+
+        // Test the MathAssignment class
+        MathAssignment mathAssignment = new MathAssignment("Roberto Rodriguez", "Fractions", "7.3", "8-19");
+        summary = mathAssignment.GetSummary();
+        string homeworkList = mathAssignment.GetHomeworkList();
+        Console.WriteLine(summary);
+        Console.WriteLine(homeworkList);
+
+        // Test the WritingAssignment class
+        WritingAssignment writingAssignment = new WritingAssignment("John Doe", "European History", "The Causes of World War II");
+        summary = writingAssignment.GetSummary();
+        string writingInfo = writingAssignment.GetWritingInformation();
+        Console.WriteLine(summary);
+        Console.WriteLine(writingInfo);
+    }
+}
